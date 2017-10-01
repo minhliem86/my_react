@@ -1,5 +1,5 @@
 const config = {
-    apiURL : "http://localhost:8012/Laravel-API/api"
+    apiURL : "http://hotel.dev/api"
 };
 
 export default config;

@@ -6,11 +6,11 @@ class UserList extends Component{
         super(props);
 
         this.state = {
-            users : {}
-        };
+            users: null,
+        }
     }
 
-    componentDidMount(){
+    componentWillMount(){
         this.getUser();
     }
 
@@ -23,7 +23,6 @@ class UserList extends Component{
     }
 
     render() {
-        console.log(this.state.users);
         return (
             <div className="user-list">
                 <table className="table table-responsive">
@@ -36,21 +35,21 @@ class UserList extends Component{
                         </tr>
                     </thead>
                     <tbody>
-                    {/*{*/}
-                        {/*this.state.users !== null ?*/}
-                            {/*this.state.users.data.map((value, key) => (*/}
-                                {/*<tr>*/}
-                                    {/*<td>{value.id}</td>*/}
-                                    {/*<td>{value.name}</td>*/}
-                                    {/*<td>{value.email}</td>*/}
-                                    {/*<td>Xóa | Sửa</td>*/}
-                                {/*</tr>*/}
-                            {/*))*/}
-                        {/*:*/}
-                            {/*<tr>*/}
-                                {/*<td colSpan="4">Không có dữ liệu</td>*/}
-                            {/*</tr>*/}
-                    {/*}*/}
+                    {
+                        this.state.users !== null && this.state.users.data.length > 0 ?
+                            this.state.users.data.map((value, key) => (
+                                <tr key={key+1}>
+                                    <td>{value.id}</td>
+                                    <td>{value.name}</td>
+                                    <td>{value.email}</td>
+                                    <td>Xóa | Sửa</td>
+                                </tr>
+                            ))
+                        :
+                            <tr>
+                                <td colSpan="4">Không có dữ liệu</td>
+                            </tr>
+                    }
                     </tbody>
                 </table>
             </div>
