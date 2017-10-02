@@ -1,13 +1,17 @@
 import React, {Component} from 'react';
 import UserModel from '../models/users';
 import {Link} from 'react-router-dom';
+import  {Pagination} from "../lib";
+import queryString from 'query-string';
 
 class UserList extends Component {
+    currentPage = 1;
     constructor(props) {
         super(props);
 
         this.state = {
             users: null,
+            keyword : ''
         }
     }
 
@@ -15,8 +19,24 @@ class UserList extends Component {
         this.getUser();
     }
 
-    getUser() {
-        UserModel.getUsers().then(result => {
+    componentWillReceiveProps(nextProps){
+        if(this.props.location.search !== nextProps.location.search){
+            this.currentPage = queryString.parse(nextProps.location.search).page || 1;
+            this.getUser(nextProps);
+        }
+    }
+
+    getUser(props = this.props, forcePage = null) {
+        // let page = 1;
+        let page = props.location.search ? querySring.parse(props.location.search).page : 1;
+        if (this.currentPage !== page){
+            page = this.currentPage;
+        }
+        // Uu tien trang tai
+        if(forcePage){
+            page = forcePage;
+        }
+        UserModel.getUsers(page).then(result => {
             this.setState({
                 users: result.data
             })
@@ -69,13 +89,7 @@ class UserList extends Component {
                     </tbody>
                 </table>
                 <nav aria-label="Page navigation example" className="d-flex justify-content-center ">
-                    <ul className="pagination">
-                        <li className="page-item"><a className="page-link" href="#">Trang đầu</a></li>
-                        <li className="page-item"><a className="page-link" href="#">1</a></li>
-                        <li className="page-item"><a className="page-link" href="#">2</a></li>
-                        <li className="page-item"><a className="page-link" href="#">3</a></li>
-                        <li className="page-item"><a className="page-link" href="#">Trang cuối</a></li>
-                    </ul>
+                    <Pagination data={this.state.users} range={2} to="users" keyword={this.state.keyword} />
                 </nav>
             </div>
         );
