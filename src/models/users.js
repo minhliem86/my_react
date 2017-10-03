@@ -6,9 +6,9 @@ let path = `${config.apiURL}`;
 class UserModel {
     // GET ALL
     static getUsers(page = 1, search = null){
-        let url = path+`/users?${page}`;
+        let url = path+`/users?page=${page}`;
         if(search){
-           url += `&${search}`;
+           url += `&search=${search}`;
         }
         return axios.get(url);
     }
