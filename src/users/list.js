@@ -3,6 +3,33 @@ import UserModel from '../models/users';
 import {Link} from 'react-router-dom';
 import  {Pagination} from "../lib";
 import queryString from 'query-string';
+const jQuery = window.jQuery;
+
+class DeleteButton extends Component{
+
+    constructor(props){
+        super(props);
+
+        // BINDING
+        this.setUser = this.setUser.bind(this);
+    }
+
+    setUser (event){
+        event.preventDefault();
+        const user = this.props.user;
+        jQuery('.modal').modal('show');
+    }
+
+    render(){
+        return (
+            <button
+                type="button"
+                className="btn btn-danger btn-xs"
+                onClick={this.setUser}
+            ><i className="fa fa-remove text-light"></i></button>
+        );
+    }
+}
 
 class UserList extends Component {
     currentPage = 1;
@@ -10,10 +37,15 @@ class UserList extends Component {
     timeOutkeypress = null;
     // set lan dau duoc load
     firstLoad = 1;
+    // set selected User
+    selectedUser = null;
+
     constructor(props) {
         super(props);
 
         this.state = {
+            message: null,
+            error: null,
             users: null,
             keyword : queryString.parse(props.location.search).search || '',
         }
@@ -22,6 +54,7 @@ class UserList extends Component {
 
         // BINDING
         this.onHandleSearch = this.onHandleSearch.bind(this);
+        this.onHandleDelete = this.onHandleDelete.bind(this);
     }
 
 
@@ -79,10 +112,32 @@ class UserList extends Component {
         this.timeOutkeypress = setTimeout(() => {
             this.getUser(this.props, 1);
         }, 300);
-
-
     }
 
+    // DELETE HANDLE
+    onHandleDelete(){
+        if(this.selectedUser){
+            UserModel.deleteUser(this.selectedUser.id).then( result => {
+                if (result.data.message) {
+                    this.state.users.data.splice(this.state.users.data.indexOf(this.seletedUser));
+                    this.setState({
+                        message: result.data.message || null,
+                        error: null,
+                    })
+
+                }
+                if(result.data.error){
+                    this.setState({
+                        error: result.data.error || null,
+                        message : null,
+                    })
+                }
+                this.getUser();
+            });
+        }
+        jQuery('.modal').modal('hide');
+        // console.log(this.seletedUser);
+    }
     render() {
         return (
             <div className="user-list">
@@ -90,8 +145,7 @@ class UserList extends Component {
                 <div className="control-bar mb-3">
                     <Link to="/users/create" className="btn btn-primary px-4"><i className="fa fa-plus"></i> Tạo
                         mới</Link>&nbsp;
-                    <Link to="/users/create" className="btn btn-outline-dark px-4"><i className="fa fa-refresh"></i>
-                        Refresh</Link>&nbsp;
+                    <Link to="/users/create" className="btn btn-outline-dark px-4"><i className="fa fa-refresh"></i> Refresh</Link>&nbsp;
                     <form style={{'display': 'inline-block'}} className="form-inline">
                         <input
                             onChange={this.onHandleSearch}
@@ -103,6 +157,12 @@ class UserList extends Component {
                         />
                     </form>
                 </div>
+                {
+                    this.state.error && <div className="alert alert-danger">{this.state.error}</div>
+                }
+                {
+                    this.state.message && <div className="alert alert-success">{this.state.message}</div>
+                }
                 <table className="table table-responsive">
                     <thead>
                     <tr>
@@ -116,11 +176,15 @@ class UserList extends Component {
                     {
                         this.state.users !== null && this.state.users.data.length > 0 ?
                             this.state.users.data.map((value, key) => (
-                                <tr key={key + 1}>
-                                    <td>{value.id}</td>
+                                <tr key={key + 1 + (this.state.users.current_page - 1) * this.state.users.per_page}>
+                                    <td>{key + 1 + (this.state.users.current_page - 1) * this.state.users.per_page}</td>
                                     <td>{value.name}</td>
                                     <td>{value.email}</td>
-                                    <td>Xóa | Sửa</td>
+                                    <td>
+                                        <Link to={`/users/${value.id}`} className="btn btn-info btn-xs mr-2"><i className="fa fa-eye text-light"></i></Link>
+                                        <DeleteButton user={value} />
+
+                                    </td>
                                 </tr>
                             ))
                             :
@@ -133,6 +197,26 @@ class UserList extends Component {
                 <nav aria-label="Page navigation example" className="d-flex justify-content-center ">
                     <Pagination data={this.state.users} range={2} to="users" keyword={this.state.keyword} />
                 </nav>
+                
+                <div className="modal fade">
+                    <div className="modal-dialog" role="document">
+                        <div className="modal-content">
+                            <div className="modal-header">
+                                <h5 className="modal-title">Modal title</h5>
+                                <button type="button" className="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div className="modal-body">
+                                <p>Modal body text goes here.</p>
+                            </div>
+                            <div className="modal-footer">
+                                <button className="btn btn-primary" onClick={this.onHandleDelete}>Xóa</button>
+                                <button type="button" className="btn btn-secondary" data-dismiss="modal">Hủy</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         );
     }

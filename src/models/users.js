@@ -21,8 +21,7 @@ class UserModel {
 
     // DELETE
     static deleteUser(id = 1){
-        let url = path + `/users/${id}`;
-        return axios.delete(url);
+        return axios.delete(`${config.apiURL}/users/${id}`);
     }
 
     // CREATE
