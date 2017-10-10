@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import UserModel from '../models/users';
 import {Link} from 'react-router-dom';
-import  {Pagination} from "../lib";
+import  {Pagination, FlashData} from "../lib";
 import queryString from 'query-string';
 const jQuery = window.jQuery;
 
@@ -16,7 +16,10 @@ class DeleteButton extends Component{
 
     setUser (event){
         event.preventDefault();
-        const user = this.props.user;
+        // nhận giá trị user từ component cha
+        const selected = this.props.user;
+        // set giá trị cho function ở component cha.
+        this.props.selectedUser(selected);
         jQuery('.modal').modal('show');
     }
 
@@ -40,11 +43,13 @@ class UserList extends Component {
     // set selected User
     selectedUser = null;
 
+
     constructor(props) {
         super(props);
-
+        // set Flash Message
+        const message = FlashData.get('message');
         this.state = {
-            message: null,
+            message: message,
             error: null,
             users: null,
             keyword : queryString.parse(props.location.search).search || '',
@@ -55,6 +60,7 @@ class UserList extends Component {
         // BINDING
         this.onHandleSearch = this.onHandleSearch.bind(this);
         this.onHandleDelete = this.onHandleDelete.bind(this);
+        this.setUser = this.setUser.bind(this);
     }
 
 
@@ -138,6 +144,10 @@ class UserList extends Component {
         jQuery('.modal').modal('hide');
         // console.log(this.seletedUser);
     }
+
+    setUser(user){
+        this.selectedUser = user;
+    }
     render() {
         return (
             <div className="user-list">
@@ -182,7 +192,7 @@ class UserList extends Component {
                                     <td>{value.email}</td>
                                     <td>
                                         <Link to={`/users/${value.id}`} className="btn btn-info btn-xs mr-2"><i className="fa fa-eye text-light"></i></Link>
-                                        <DeleteButton user={value} />
+                                        <DeleteButton user={value} selectedUser={this.setUser} />
 
                                     </td>
                                 </tr>

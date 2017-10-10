@@ -31,7 +31,7 @@ class UserModel {
 
     // UPDATE
     static updateUser(id, data ={}){
-        return axios.post(path+`/users/create/${id}`,data);
+        return axios.put(path+`/users/${id}`,data);
     }
 }
 
