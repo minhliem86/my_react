@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import logo from './logo.svg';
 import './App.css';
 import {
     Route,
@@ -7,6 +6,7 @@ import {
     NavLink,
 } from 'react-router-dom'
 import UserCenter from './users/index';
+import RoomCenter from './rooms/index';
 
 class App extends Component {
   render() {
@@ -27,7 +27,6 @@ class App extends Component {
                         </li>
                         <li className="nav-item">
                             <NavLink className="nav-link" to="/rooms">Room</NavLink>
-                            {/*<a className="nav-link" href="#">Link</a>*/}
                         </li>
 
                     </ul>
@@ -40,7 +39,7 @@ class App extends Component {
                     <div className="col-sm-12">
                         <Route exact path="/" component={UserCenter}/>
                         <Route path="/users" component={UserCenter}/>
-                        <Route path="/rooms"/>
+                        <Route path="/rooms" component={RoomCenter}/>
                     </div>
                 </div>
             </div>

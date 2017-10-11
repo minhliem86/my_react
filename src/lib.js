@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import {Link} from 'react-router-dom';
-
+import loadingGif from './loading.gif';
 export class FlashData {
     static data = {};
 
@@ -91,5 +91,18 @@ export class Pagination extends Component {
         }
 
         return null;
+    }
+}
+
+export class Loading extends Component{
+    render(){
+        const style ={
+            width: this.props.width || 64,
+            height: this.props.height || 64,
+            display : this.props.show === true ? 'inline-block' : 'none',
+        }
+        return (
+            <img src={loadingGif} alt="Loading" style={style}/>
+        );
     }
 }
