@@ -2,11 +2,11 @@ import React, {Component} from 'react';
 import {Link} from 'react-router-dom';
 import {Pagination} from "../lib";
 import RoomModel from '../models/rooms';
-
+import queryString from 'query-string';
+const jQuery = window.jQuery;
 
 class DeleteButton extends Component{
     render() {
-
         return (
           <div style={{'display': 'inline-block'}}>
               <button type="button " className="btn btn-danger" >Xóa</button>
@@ -15,23 +15,56 @@ class DeleteButton extends Component{
     }
 }
 class RoomList extends Component{
+    oldTimeOut = '';
+
     constructor(props){
         super(props);
         this.state = {
             rooms: null,
-            keyword: '',
+            keyword: queryString.parse(props.location.search).search || '',
+        }
+
+        // BINDING
+        this.onHandleSearch = this.onHandleSearch.bind(this);
+    }
+    // Khi Re render view
+    componentWillReceiveProps(nextProps){
+        if(this.props.location.search !== nextProps.location.search){
+            this.getRoomList(nextProps);
         }
     }
-
+    // First Load Page
     componentDidMount(){
         this.getRoomList();
     }
-    getRoomList(){
-        RoomModel.getRooms().then( results => {
+    getRoomList(props = this.props){
+        let uri = props.location.search ?  queryString.parse(props.location.search): '';
+        let search = '';
+        let page = 1;
+        if(uri){
+            page = uri.page || 1;
+            search = uri.keyword || '';
+        }
+
+        RoomModel.getRooms(page, search).then( results => {
            this.setState({
-               rooms: results.data
+               rooms: results.data,
+               keyword: search,
            })
         });
+    }
+
+    // SEARCH EVENT
+    onHandleSearch(event){
+        const target = event.target;
+        const value = target.value;
+        const name = target.name;
+        this.setState({
+            [name]: value
+        });
+        this.oldTimeOut = setTimeout(()=>{
+            this.getRoomList(this.props)
+        }, 3000)
     }
     render () {
         return (
