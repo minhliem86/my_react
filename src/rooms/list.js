@@ -21,50 +21,55 @@ class RoomList extends Component{
         super(props);
         this.state = {
             rooms: null,
-            keyword: queryString.parse(props.location.search).search || '',
+            search: queryString.parse(props.location.search).search || '',
         }
 
         // BINDING
         this.onHandleSearch = this.onHandleSearch.bind(this);
     }
-    // Khi Re render view
-    componentWillReceiveProps(nextProps){
-        if(this.props.location.search !== nextProps.location.search){
-            this.getRoomList(nextProps);
-        }
-    }
+
     // First Load Page
     componentDidMount(){
         this.getRoomList();
     }
+
+    // Khi Re render view
+    componentWillReceiveProps(nextProps){
+        console.log(nextProps);
+        //
+
+    }
+
     getRoomList(props = this.props){
         let uri = props.location.search ?  queryString.parse(props.location.search): '';
-        let search = '';
+        let search = this.state.search || '';
         let page = 1;
         if(uri){
             page = uri.page || 1;
-            search = uri.keyword || '';
+            search = uri.search || '';
         }
 
         RoomModel.getRooms(page, search).then( results => {
            this.setState({
                rooms: results.data,
-               keyword: search,
+               search: search,
            })
         });
     }
 
     // SEARCH EVENT
     onHandleSearch(event){
+        clearTimeout(this.oldTimeOut);
         const target = event.target;
         const value = target.value;
         const name = target.name;
         this.setState({
             [name]: value
         });
+
         this.oldTimeOut = setTimeout(()=>{
             this.getRoomList(this.props)
-        }, 3000)
+        }, 500)
     }
     render () {
         return (
@@ -78,9 +83,9 @@ class RoomList extends Component{
                         <form style={{'display': 'inline-block'}} className="form-inline">
                             <input
                                 onChange={this.onHandleSearch}
-                                value={this.state.keyword}
+                                value={this.state.search}
                                 type="text"
-                                name="keyword"
+                                name="search"
                                 className="form-control"
                                 placeholder="Tìm kiếm"
                             />
@@ -148,7 +153,7 @@ class RoomList extends Component{
                                     <p>Bạn có muốn xóa phần tử này khỏi danh sách ?</p>
                                 </div>
                                 <div className="modal-footer">
-                                    <button className="btn btn-primary" onClick="">Xóa</button>
+                                    <button className="btn btn-primary" >Xóa</button>
                                     <button type="button" className="btn btn-secondary" data-dismiss="modal">Hủy</button>
                                 </div>
                             </div>
