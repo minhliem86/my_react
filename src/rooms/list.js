@@ -21,7 +21,7 @@ class RoomList extends Component{
         super(props);
         this.state = {
             rooms: null,
-            keyword: queryString.parse(props.location.search).search || '',
+            keyword: queryString.parse(props.location.search).keyword || '',
         }
 
         // BINDING
