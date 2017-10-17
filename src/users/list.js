@@ -130,7 +130,6 @@ class UserList extends Component {
                         message: result.data.message || null,
                         error: null,
                     })
-
                 }
                 if(result.data.error){
                     this.setState({
