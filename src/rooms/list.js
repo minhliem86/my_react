@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import {Link} from 'react-router-dom';
-import {Pagination} from "../lib";
+import {FlashData, Pagination} from "../lib";
 import RoomModel from '../models/rooms';
 import queryString from 'query-string';
 const jQuery = window.jQuery;
@@ -32,11 +32,12 @@ class RoomList extends Component{
 
     constructor(props){
         super(props);
+        const message = FlashData.get('message');
         this.state = {
             rooms: null,
             search: queryString.parse(props.location.search).search || '',
             selectRoom: null,
-            message: null,
+            message: message,
             error : null,
         }
 
@@ -96,19 +97,22 @@ class RoomList extends Component{
     onHandleDeleteRoom(event){
         if(this.state.selectRoom){
             RoomModel.deleteRoom(this.state.selectRoom).then(result => {
-                // if(result.message){
-                //     this.setState({
-                //         message: result.message,
-                //         error: null,
-                //     })
-                // }
-                // if(result.error){
-                //     this.setState({
-                //         message: null,
-                //         error : result.error,
-                //     })
-                // }
+                // console.log(result);
+                if(result.data.message){
+                    this.setState({
+                        message: result.data.message || null,
+                        error: null,
+                    })
+                }
+                if(result.data.error){
+                    this.setState({
+                        message: null,
+                        error : result.data.error || null,
+                    })
+                }
+                this.getRoomList();
             });
+
             jQuery('.modal').modal('hide');
         }
     }
@@ -141,6 +145,9 @@ class RoomList extends Component{
                         </form>
                     </div>
                     {
+                        FlashData.get('message') && <div className="alert alert-success">{FlashData.get('message')}</div>
+                    }
+                    {
                         this.state.error && <div className="alert alert-danger">{this.state.error}</div>
                     }
                     {
@@ -172,8 +179,6 @@ class RoomList extends Component{
                                         <td>
                                             <Link to={`/rooms/${room.id}`} className="btn btn-info btn-xs mr-2" style={{'display': 'inline-block'}}><i className="fa fa-eye text-light"></i></Link>
                                             <DeleteButton room={room} setRoomHandle={this.setRoom} />
-
-
                                         </td>
                                     </tr>
                                 ))
